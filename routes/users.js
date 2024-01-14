@@ -34,4 +34,18 @@ router.delete("/delete/:id", (req, res) => {
   res.send("deleted");
 });
 
+router.post("/login", (req, res) => {
+  const { username, password } = req.body;
+
+  const user = syncDb(
+    `select * from users where user_name='${username}' and password='${password}'`
+  );
+
+  if (user.length === 0) return res.status(404).send("user was not found");
+  return res.send({
+    username: user[0].user_name,
+    role: user[0].user_type,
+  });
+});
+
 module.exports = router;

@@ -4,17 +4,17 @@ const syncDb = require("../config/syncDb");
 const db = require("../config/Db");
 
 router.get("/list", (req, res) => {
-  let result = syncDb("select * from parents");
+  let result = syncDb("select * from teachers");
   res.send(result);
 });
 
 router.post("/new", (req, res) => {
-  const { parentName } = req.body;
+  const { teacherName, phone } = req.body;
   // for creating user and password
   let userQuery = `insert into users values(null,'${
-    parentName + Math.floor(Math.random() * 1000)
-  }','1234','parent')`;
-  //for creating the student
+    teacherName + Math.floor(Math.random() * 1000)
+  }','1234','teacher')`;
+  //for creating the teacher
 
   db.query(userQuery, (err, result) => {
     if (err) return res.status(500).send("server error.");
@@ -25,11 +25,11 @@ router.post("/new", (req, res) => {
         if (err) return res.status(500).send("server error.");
         let userId = result[0].user_id;
 
-        let parentQry = `insert into parents values(null,'${parentName}','${userId}')`;
+        let teacherQry = `insert into teachers values(null,'${teacherName}','${phone}','${userId}')`;
 
-        db.query(parentQry, (err, result) => {
+        db.query(teacherQry, (err, result) => {
           if (err) return res.status(500).send("server error.");
-          res.send("parent created");
+          res.send("teacher created");
         });
       }
     );
@@ -37,21 +37,25 @@ router.post("/new", (req, res) => {
 });
 
 router.put("/update/:id", (req, res) => {
-  const { parentName } = req.body;
+  const { teacherName, phone } = req.body;
   syncDb(
-    `update parents set parent_name = '${parentName}' where parent_id=${req.params.id}`
+    `update teachers 
+        set 
+    teacher_name = '${teacherName}', 
+    teacher_phone = '${phone}' 
+    where teacher_id=${req.params.id}`
   );
   res.send("updated");
 });
 
 router.delete("/delete/:id", (req, res) => {
   let exists = syncDb(
-    `select count(parent_id) as total from students where parent_id=${req.params.id}`
+    `select count(shift_id) as total from classes where shift_id=${req.params.id}`
   )[0].total;
   if (exists > 0) {
     return res.status(409).send("can not be deleted. it has related data");
   }
-  syncDb(`delete from parents where parent_id=${req.params.id}`);
+  syncDb(`delete from shifts where shift_id=${req.params.id}`);
   res.send("deleted");
 });
 

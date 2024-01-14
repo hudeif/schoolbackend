@@ -21,6 +21,12 @@ router.put("/update/:id", (req, res) => {
 });
 
 router.delete("/delete/:id", (req, res) => {
+  let exists = syncDb(
+    `select count(academic_year_id) as total from exam_results where academic_year_id=${req.params.id}`
+  )[0].total;
+  if (exists > 0) {
+    return res.status(409).send("can not be deleted. it has related data");
+  }
   syncDb(`delete from academic_year where academic_year_id=${req.params.id}`);
   res.send("deleted");
 });
