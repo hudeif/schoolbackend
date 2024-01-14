@@ -6,6 +6,7 @@ let conInfo = {
   user: "root",
   password: "",
   port: 3306,
+  dateStrings: true,
 };
 
 const conn = new Mysql(conInfo);
@@ -13,7 +14,7 @@ const conn = new Mysql(conInfo);
 if (conn) {
   console.log("db connected");
 } else {
-  console.log("something happer");
+  console.log("something happen");
 }
 
 module.exports = function syncDb(query) {
